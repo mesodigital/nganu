@@ -14,3 +14,4 @@ adb(){
 tes(){
 	echo "jalan"
 }
+tes
