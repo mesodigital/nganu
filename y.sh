@@ -10,3 +10,7 @@ adb(){
         return $?
     fi
 }
+
+tes(){
+	echo "jalan"
+}
