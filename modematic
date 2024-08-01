@@ -1,0 +1,307 @@
+#!/bin/sh
+
+# ANSI color code for red
+RED='\033[0;31m'
+YELLOW='\033[33m'
+BLUE='\033[34m'
+GREEN='\033[32m'
+NC='\033[0m' 
+
+# Function to display loading fast
+loading() {
+    bar="####################"   # The load bar
+    barlength=${#bar}
+
+    for i in $(seq 1 $barlength); do
+        n=$((i * 100 / barlength))
+        printf "\r${RED}[%-${barlength}s] %d%%${NC}" "${bar:0:i}" "$n"
+        sleep 0  # Sleep for 0 second in each iteration
+    done
+    echo ""
+}
+
+# Function to display loading slow
+loading_slow() {
+    bar="####################"   # The load bar
+    barlength=${#bar}
+
+    for i in $(seq 1 $barlength); do
+        n=$((i * 100 / barlength))
+        printf "\r${RED}[%-${barlength}s] %d%%${NC}" "${bar:0:i}" "$n"
+        sleep 1  # Sleep for 1 second in each iteration
+    done
+    echo ""
+}
+
+ShellADB() {
+
+    # Open ADB shell
+    adb shell
+
+    # After finishing, return to the previous context (optional)
+    echo "Returned from ADB shell."
+}
+
+extract_model() {
+    local output="$1"
+    # Extract the model from the provided output
+    model=$(echo "$output" | awk '/model:/ { for (i=1; i<=NF; i++) if ($i ~ /^model:/) { split($i, a, ":"); print a[2] } }')
+    echo "$model"
+}
+
+extract_serial() {
+    local output="$1"
+    # Extract the serial from the provided output
+    serial=$(echo "$output" | grep -o '^[^\t]*' | awk 'NR==2{print $1}')
+    echo "$serial"
+}
+
+#Function for Check device status, serial, and model
+device_check() {
+	echo "Check your device status, serial, and model:"
+	loading # Display loading message
+	ADBoutput=$(adb devices -l)
+
+	# Execute adb command to get device status
+    if echo "$ADBoutput" | grep -q "device "; then
+        status="Connected"
+    else
+        status="Device disconnected"
+    fi
+	
+	# Execute adb command to get serial number
+	serial=$(extract_serial "$ADBoutput")
+	
+	# Execute adb command to get phone model
+	model=$(extract_model "$ADBoutput")
+	
+	# Display result
+	# Depending on the status, print appropriate message
+	if [ "$status" = "Connected" ]; then
+		echo -e "${YELLOW}=======================================${NC}"
+		echo -e "${YELLOW}Device ${NC} ${GREEN}$status ${NC}"
+		echo -e "${YELLOW}Serial number ${NC} ${GREEN}$serial ${NC}"
+		echo -e "${YELLOW}Phone model ${NC} ${GREEN}$model ${NC}"
+		echo -e "${YELLOW}=======================================${NC}"
+	else
+		echo -e "${YELLOW}=======================================${NC}"
+		echo -e "${RED}Device disconnected, try again!${NC}"
+		echo -e "${YELLOW}=======================================${NC}"
+	fi
+}
+
+
+# Function for IP Check option
+ip_check() {
+    echo "IP Check:"
+    loading  # Display loading message
+
+    # Execute adb command to get the IP information
+    ip_info=$(adb shell su -c "ip addr show rmnet0")
+    
+    # Extract the IP address from the output
+    ip_address=$(echo "$ip_info" | grep -oE 'inet ([0-9]{1,3}\.){3}[0-9]{1,3}' | awk '{print $2}')
+    
+    # Display the IP address
+	echo -e "${YELLOW}=======================================${NC}"
+	echo -e "${YELLOW}IP address ${NC} ${GREEN} $ip_address ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+# Function for change IP address
+change_ip() {
+	echo "Changing IP address:"
+    # Turn on airplane mode
+    adb shell su -c "settings put global airplane_mode_on 1 >/dev/null 2>&1"
+    adb shell su -c "am broadcast -a android.intent.action.AIRPLANE_MODE >/dev/null 2>&1"
+    echo "Airplane mode turned on"
+
+	loading_slow # Display loading message
+    
+    # Turn off airplane mode
+    adb shell su -c "settings put global airplane_mode_on 0 >/dev/null 2>&1"
+    adb shell su -c "am broadcast -a android.intent.action.AIRPLANE_MODE >/dev/null 2>&1"
+    echo "Airplane mode turned off"
+	echo -e "${YELLOW}=======================================${NC}"
+	echo -e "${GREEN}IP address has been reset ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+# Function for show battery detail
+battery_info(){
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Oops.. You're using Freee Version. Enjoy full version of modematic https://t.me/myopenwrtproject ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+signal_info(){
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Oops.. You're using Freee Version. Enjoy full version of modematic https://t.me/myopenwrtproject ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+sms_checker() {
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Oops.. You're using Freee Version. Enjoy full version of modematic https://t.me/myopenwrtproject ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+lockb1() {
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Oops.. You're using Freee Version. Enjoy full version of modematic https://t.me/myopenwrtproject ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+lockb3() {
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Oops.. You're using Freee Version. Enjoy full version of modematic https://t.me/myopenwrtproject ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+lockb8() {
+	echo "Lock progress:"
+	adb shell input keyevent 3
+	adb shell am start -n com.samsung.android.app.telephonyui/com.samsung.android.app.telephonyui.hiddennetworksetting.MainActivity >/dev/null 2>&1
+	sleep 1
+	adb shell input tap 88 141
+	sleep 1
+	adb shell input tap 363 811
+	sleep 1
+	adb shell input tap 1008 281
+	sleep 1
+	adb shell input swipe 660 1908 663 66 2000
+	sleep 1
+	adb shell input tap 557 1270
+	sleep 1
+	adb shell input tap 1008 281
+	sleep 1
+	adb shell input keyevent 4
+	sleep 1
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}LTE Band was successfully changed to B8(900){NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+lockb40() {
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Oops.. You're using Freee Version. Enjoy full version of modematic https://t.me/myopenwrtproject ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+resetlockband() {
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Oops.. You're using Freee Version. Enjoy full version of modematic https://t.me/myopenwrtproject ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+lockbb1b3() {
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Oops.. You're using Freee Version. Enjoy full version of modematic https://t.me/myopenwrtproject ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+currentAPN() {
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Oops.. You're using Freee Version. Enjoy full version of modematic https://t.me/myopenwrtproject ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+changeAPN(){
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Oops.. You're using Freee Version. Enjoy full version of modematic https://t.me/myopenwrtproject ${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+resetAPN(){
+	echo "Resetting your APN:"
+	adb shell su -c pm clear com.android.providers.telephony
+    adb shell su -c "settings put global airplane_mode_on 1 >/dev/null 2>&1"
+    adb shell su -c "am broadcast -a android.intent.action.AIRPLANE_MODE >/dev/null 2>&1"
+
+	loading_slow # Display loading message
+
+    adb shell su -c "settings put global airplane_mode_on 0 >/dev/null 2>&1"
+    adb shell su -c "am broadcast -a android.intent.action.AIRPLANE_MODE >/dev/null 2>&1"
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Your APN has been successfully reset${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+# Function for Reboot Devices option
+rebootDevices() {
+    echo "Reboot Devices:"
+    loading  # Display loading message
+    
+    # Execute adb command to do reboot
+    reboot_me=$(adb shell su -c "reboot")
+    
+    # Display messages
+	echo -e "${YELLOW}=======================================${NC}"
+    echo -e "${GREEN}Devices is rebooting, it may take several minutes to network reconnect${NC}"
+	echo -e "${YELLOW}=======================================${NC}"
+}
+
+# Main menu
+main_menu() {
+	echo -e "
+${YELLOW}=============================================================${NC}${GREEN}
+ __  __  _____  ____  ____  __  __    __   ____  ____  ___ 
+(  \/  )(  _  )(  _ \( ___)(  \/  )  /__\ (_  _)(_  _)/ __)
+ )    (  )(_)(  )(_) ))__)  )    (  /(__)\  )(   _)(_( (__ 
+(_/\/\_)(_____)(____/(____)(_/\/\_)(__)(__)(__) (____)\___)
+
+Modem HP Manager for S8 & S8+
+Troubleshooting & Feedback t.me/myopenwrtproject${NC}${YELLOW}
+=============================================================${NC}
+
++------+-------------------------+
+| Code |         Command         |
++======+=========================+
+| a    | Is my device connected? |
+| b    | Check my IP address     |
+| c    | Change IP address       |
+| d    | Battery status          |
+| e    | Signal info             |
+| f    | Check SMS               |
+| g    | Lock B1(2100)           |
+| h    | Lock B3(1800)           |
+| i    | Lock B8(900)            |
+| j    | Lock B40(2300)          |
+| k    | Lock B1+B3              |
+| l    | Reset lock band         |
+| m    | Current APN             |
+| n    | Change APN              |
+| o    | Reset APN               |
+| p    | Reboot                  |
+| x    | Exit                    |
++------+-------------------------+"
+    while true; do
+        echo "
+        "
+        read -p "Enter your code: " choice
+
+        case $choice in
+            a) device_check ;;
+            b) ip_check ;;
+            c) change_ip ;;
+            d) battery_info ;;
+			e) signal_info ;;
+			f) sms_checker ;;
+			g) lockb1 ;;
+			h) lockb3 ;;
+			i) lockb8 ;;
+			j) lockb40 ;;
+			k) lockbb1b3 ;;
+			l) resetlockband ;;	
+			m) currentAPN ;;
+			n) changeAPN ;;
+			o) resetAPN ;;
+			p) rebootDevices ;;
+			x) exit 0 ;;
+            *) echo "Invalid option. Please choose a valid option." ;;
+			
+        esac
+    done
+}
+
+# Main execution starts here
+main_menu
